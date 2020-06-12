@@ -1,15 +1,22 @@
 import * as actionTypes from './actionTypes';
-import { Node } from '../reducers/tree';
+import { inputNode } from '../reducers/tree';
 
 interface NodeAction {
     type: string;
     payload?: string;
-    seed?: Array<Node>;
+    seed?: Array<inputNode>;
 }
 
 export type ActionInterface = NodeAction;
 
 export const actions = {
+    initTree: (payload: Array<inputNode>): ActionInterface => {
+        return {
+            type: actionTypes.INIT_TREE,
+            seed: payload,
+        };
+    },
+
     expandNode: (nodeId: string): ActionInterface => ({
         type: actionTypes.EXPAND_NODE,
         payload: nodeId,
@@ -20,10 +27,11 @@ export const actions = {
         payload: nodeId,
     }),
 
-    initTree: (payload: Array<Node>): ActionInterface => {
-        return {
-            type: actionTypes.INIT_TREE,
-            seed: payload,
-        };
-    },
+    expandAll: (): ActionInterface => ({
+        type: actionTypes.EXPAND_ALL,
+    }),
+
+    colapseAll: (): ActionInterface => ({
+        type: actionTypes.COLAPSE_ALL,
+    }),
 };

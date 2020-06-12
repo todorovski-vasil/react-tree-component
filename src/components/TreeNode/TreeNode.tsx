@@ -27,8 +27,8 @@ function TreeNode(props: Props) {
             }}
         >
             {props.expanded || !props.children
-                ? `> ${props.label}`
-                : `V ${props.label}`}
+                ? `- ${props.label}`
+                : `+ ${props.label}`}
             {props.expanded ? (
                 <div className={classes.children}>{props.children}</div>
             ) : null}

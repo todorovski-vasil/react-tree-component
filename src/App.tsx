@@ -1,27 +1,26 @@
 import React, { useReducer, useEffect, ReactElement, useCallback } from 'react';
-
-import { reducer as treeReducer, State } from './store/reducers/tree';
+import { reducer as treeReducer, Node } from './store/reducers/tree';
 import { actions } from './store/actions/tree';
 import TreeNode from './components/TreeNode/TreeNode';
 import mockData from './model/tree.json';
 
-function stateToComponents(
-    state: State,
+function treeToComponents(
+    node: Node,
     expandNodeCallback: any,
     colapseNodeCallback: any
 ): ReactElement {
     return (
         <TreeNode
-            key={state.id}
-            id={state.id}
-            expanded={state.expanded}
-            label={state.label}
+            key={node.id}
+            id={node.id}
+            expanded={node.expanded}
+            label={node.label}
             expandNode={expandNodeCallback}
             colapseNode={colapseNodeCallback}
         >
-            {state.children
-                ? state.children.map((child) =>
-                      stateToComponents(
+            {node.children
+                ? node.children.map((child) =>
+                      treeToComponents(
                           child,
                           expandNodeCallback,
                           colapseNodeCallback
@@ -33,9 +32,10 @@ function stateToComponents(
 }
 
 function App() {
-    const [state, dispatch] = useReducer(treeReducer, [
-        { label: 'drvo', expanded: false, id: '' },
-    ]);
+    const [state, dispatch] = useReducer(treeReducer, {
+        allExpanded: false,
+        tree: [{ label: 'drvo', expanded: false, id: '' }],
+    });
 
     useEffect(() => {
         dispatch(actions.initTree(mockData));
@@ -57,11 +57,27 @@ function App() {
         [dispatch]
     );
 
-    const tree = state.map((child) =>
-        stateToComponents(child, expandNodeCallback, colapseNodeCallback)
+    const tree = state.tree.map((child) =>
+        treeToComponents(child, expandNodeCallback, colapseNodeCallback)
     );
 
-    return <div className='App'>{tree}</div>;
+    return (
+        <div className='App'>
+            <div
+                onClick={(e) => {
+                    e.stopPropagation();
+                    if (state.allExpanded) {
+                        dispatch(actions.colapseAll());
+                    } else {
+                        dispatch(actions.expandAll());
+                    }
+                }}
+            >
+                {state.allExpanded ? 'colapse all' : 'expand all'}
+            </div>
+            {tree}
+        </div>
+    );
 }
 
 export default App;
