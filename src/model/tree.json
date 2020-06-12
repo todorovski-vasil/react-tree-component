@@ -1,0 +1,56 @@
+[
+    {
+        "label": "root 0",
+        "children": [
+            {
+                "label": "branch 0",
+                "children": [
+                    {
+                        "label": "branch 0 0"
+                    },
+                    {
+                        "label": "branch 0 1"
+                    }
+                ]
+            },
+            {
+                "label": "branch 1",
+                "children": [
+                    {
+                        "label": "branch 1 0",
+                        "children": [
+                            {
+                                "label": "branch 1 0 0"
+                            },
+                            {
+                                "label": "branch 1 0 1"
+                            }
+                        ]
+                    },
+                    {
+                        "label": "branch 1 1"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "label": "root 1",
+        "children": [
+            {
+                "label": "branch 1",
+                "children": [
+                    {
+                        "label": "branch 1 0"
+                    },
+                    {
+                        "label": "branch 1 1"
+                    },
+                    {
+                        "label": "branch 1 2"
+                    }
+                ]
+            }
+        ]
+    }
+]

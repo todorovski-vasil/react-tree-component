@@ -4,14 +4,34 @@ import classes from './TreeNode.module.css';
 
 interface Props {
     label: string;
-    children?: Array<ReactElement>;
+    id: string;
+    expanded: boolean;
+    colapseNode: (id: string) => void;
+    expandNode: (id: string) => void;
+    children?: Array<ReactElement> | null;
 }
 
 function TreeNode(props: Props) {
     return (
-        <div>
-            {props.label}
-            <div className={classes.children}>{props.children}</div>
+        <div
+            onClick={(e) => {
+                e.stopPropagation();
+                console.log('klik');
+                if (props.children) {
+                    if (props.expanded) {
+                        props.colapseNode(props.id);
+                    } else {
+                        props.expandNode(props.id);
+                    }
+                }
+            }}
+        >
+            {props.expanded || !props.children
+                ? `> ${props.label}`
+                : `V ${props.label}`}
+            {props.expanded ? (
+                <div className={classes.children}>{props.children}</div>
+            ) : null}
         </div>
     );
 }
