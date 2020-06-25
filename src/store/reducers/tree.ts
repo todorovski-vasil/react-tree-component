@@ -1,16 +1,25 @@
 import * as actionTypes from '../actions/actionTypes';
 import { ActionInterface } from '../actions/tree';
 
-export interface inputNode {
+const recursive = false;
+
+export interface InputNode {
     label: string;
-    children?: Array<inputNode>;
+    children?: Array<InputNode>;
+    // [key: string]: any;
+}
+
+export interface InputNodeFlat {
+    label: string;
+    parentIndex: number;
+    index: number;
 }
 
 export interface Node {
     id: string;
     label: string;
     expanded: boolean;
-    children?: Array<Node>;
+    children: Array<Node>;
 }
 
 export interface State {
@@ -20,25 +29,60 @@ export interface State {
 
 const getUniqueId = () => (Math.random() * Math.pow(10, 15)).toFixed(0);
 
-function nodeToState(node: inputNode): Node {
-    if (node.children) {
-        return {
-            ...node,
-            id: getUniqueId(),
-            children: node.children.map((child) => nodeToState(child)),
-            expanded: false,
-        };
+export const inputNodeToNodeRecursive = (inputNode: InputNode): Node => ({
+    id: getUniqueId(),
+    label: inputNode.label,
+    children: inputNode.children
+        ? inputNode.children.map((child) => inputNodeToNodeRecursive(child))
+        : [],
+    expanded: false,
+});
+
+export function inputNodeToNodeIterative(inputNode: InputNode): Node {
+    const outputNode: {
+        id: string;
+        label: string;
+        expanded: boolean;
+        children: Array<any>;
+    } = {
+        id: getUniqueId(),
+        label: inputNode.label,
+        children: inputNode.children ? inputNode.children : [],
+        expanded: false,
+    };
+    let outputLayer = [outputNode];
+
+    while (outputLayer.length) {
+        // @ts-ignore
+        outputLayer = outputLayer.reduce((acc, node) => {
+            if (node.children.length) {
+                node.children = node.children.map((child) => ({
+                    id: getUniqueId(),
+                    label: child.label,
+                    children: child.children ? child.children : [],
+                    expanded: false,
+                }));
+
+                return [...acc, ...node.children];
+            } else {
+                return acc;
+            }
+        }, []);
+    }
+
+    return outputNode;
+}
+
+export function inputNodeToNode(inputNode: InputNode): Node {
+    if (recursive) {
+        return inputNodeToNodeRecursive(inputNode);
     } else {
-        return {
-            id: getUniqueId(),
-            label: node.label,
-            expanded: false,
-        };
+        return inputNodeToNodeIterative(inputNode);
     }
 }
 
-function checkIfNodeIsExpanded(node: Node): boolean {
-    if (node.children) {
+export function checkIfNodeIsExpandedRecursive(node: Node): boolean {
+    if (node.children.length) {
         if (!node.expanded) {
             return false;
         } else {
@@ -53,7 +97,38 @@ function checkIfNodeIsExpanded(node: Node): boolean {
     }
 }
 
-function isAllExpanded(tree: Array<Node>): boolean {
+export function checkIfNodeIsExpandedIterative(node: Node): boolean {
+    let currentLevel: Array<Node> = [node];
+    let childNodes: Array<Node>;
+
+    do {
+        childNodes = [];
+
+        for (const currentNode of currentLevel) {
+            if (currentNode.children.length) {
+                if (!currentNode.expanded) {
+                    return false;
+                }
+
+                childNodes = [...childNodes, ...currentNode.children];
+            }
+        }
+
+        currentLevel = childNodes;
+    } while (childNodes.length);
+
+    return true;
+}
+
+export function checkIfNodeIsExpanded(node: Node): boolean {
+    if (recursive) {
+        return checkIfNodeIsExpandedRecursive(node);
+    } else {
+        return checkIfNodeIsExpandedIterative(node);
+    }
+}
+
+export function isAllExpanded(tree: Array<Node>): boolean {
     return tree.reduce(
         (acc: boolean, node: Node): boolean =>
             acc && checkIfNodeIsExpanded(node),
@@ -62,7 +137,7 @@ function isAllExpanded(tree: Array<Node>): boolean {
 }
 
 function changeExpandedFlag(node: Node, id: string, expanded: boolean): Node {
-    if (node.children) {
+    if (node.children.length) {
         if (node.id === id) {
             node.expanded = expanded;
             return node;
@@ -91,8 +166,8 @@ function colapseNode(node: Node, id: string): Node {
     return changeExpandedFlag(node, id, false);
 }
 
-function expandAllNodes(node: Node): Node {
-    if (node.children) {
+export function expandAllNodes(node: Node): Node {
+    if (node.children.length) {
         return {
             ...node,
             expanded: true,
@@ -104,7 +179,7 @@ function expandAllNodes(node: Node): Node {
 }
 
 function colapseAllNodes(node: Node): Node {
-    if (node.children) {
+    if (node.children.length) {
         return {
             ...node,
             expanded: false,
@@ -115,7 +190,7 @@ function colapseAllNodes(node: Node): Node {
     }
 }
 
-function expandTree(tree: Array<Node>): Array<Node> {
+export function expandTree(tree: Array<Node>): Array<Node> {
     return tree.map((node) => expandAllNodes(node));
 }
 
@@ -130,7 +205,7 @@ export const reducer = (state: State, action: ActionInterface): State => {
                 ...state,
                 allExpanded: false,
                 tree: action.seed
-                    ? action.seed.map((node) => nodeToState(node))
+                    ? action.seed.map((inputNode) => inputNodeToNode(inputNode))
                     : state.tree,
             };
         case actionTypes.EXPAND_NODE: {

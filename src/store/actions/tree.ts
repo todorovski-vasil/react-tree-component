@@ -1,16 +1,16 @@
 import * as actionTypes from './actionTypes';
-import { inputNode } from '../reducers/tree';
+import { InputNode } from '../reducers/tree';
 
 interface NodeAction {
     type: string;
     payload?: string;
-    seed?: Array<inputNode>;
+    seed?: Array<InputNode>;
 }
 
 export type ActionInterface = NodeAction;
 
 export const actions = {
-    initTree: (payload: Array<inputNode>): ActionInterface => {
+    initTree: (payload: Array<InputNode>): ActionInterface => {
         return {
             type: actionTypes.INIT_TREE,
             seed: payload,

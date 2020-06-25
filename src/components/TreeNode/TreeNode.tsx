@@ -8,16 +8,16 @@ interface Props {
     expanded: boolean;
     colapseNode: (id: string) => void;
     expandNode: (id: string) => void;
-    children?: Array<ReactElement> | null;
+    children: Array<ReactElement>;
 }
 
-function TreeNode(props: Props) {
+const TreeNode = React.memo((props: Props) => {
     return (
         <div
             onClick={(e) => {
                 e.stopPropagation();
                 console.log('klik');
-                if (props.children) {
+                if (props.children.length) {
                     if (props.expanded) {
                         props.colapseNode(props.id);
                     } else {
@@ -26,14 +26,13 @@ function TreeNode(props: Props) {
                 }
             }}
         >
-            {props.expanded || !props.children
-                ? `- ${props.label}`
-                : `+ ${props.label}`}
+            {props.children.length ? (props.expanded ? `- ` : `+ `) : ' '}
+            {props.label}
             {props.expanded ? (
                 <div className={classes.children}>{props.children}</div>
             ) : null}
         </div>
     );
-}
+});
 
 export default TreeNode;

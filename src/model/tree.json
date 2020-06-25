@@ -36,6 +36,7 @@
     },
     {
         "label": "root 1",
+        "brd": "saf",
         "children": [
             {
                 "label": "branch 1",

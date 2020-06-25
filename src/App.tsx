@@ -1,4 +1,5 @@
 import React, { useReducer, useEffect, ReactElement, useCallback } from 'react';
+
 import { reducer as treeReducer, Node } from './store/reducers/tree';
 import { actions } from './store/actions/tree';
 import TreeNode from './components/TreeNode/TreeNode';
@@ -18,15 +19,9 @@ function treeToComponents(
             expandNode={expandNodeCallback}
             colapseNode={colapseNodeCallback}
         >
-            {node.children
-                ? node.children.map((child) =>
-                      treeToComponents(
-                          child,
-                          expandNodeCallback,
-                          colapseNodeCallback
-                      )
-                  )
-                : null}
+            {node.children.map((child) =>
+                treeToComponents(child, expandNodeCallback, colapseNodeCallback)
+            )}
         </TreeNode>
     );
 }
@@ -34,7 +29,7 @@ function treeToComponents(
 function App() {
     const [state, dispatch] = useReducer(treeReducer, {
         allExpanded: false,
-        tree: [{ label: 'drvo', expanded: false, id: '' }],
+        tree: [{ label: 'drvo', expanded: false, id: '', children: [] }],
     });
 
     useEffect(() => {
@@ -80,4 +75,4 @@ function App() {
     );
 }
 
-export default App;
+export default React.memo(App);
