@@ -1,3 +1,7 @@
+.node {
+    width: 10rem;
+}
+
 .children {
     position: relative;
     left: 1rem;

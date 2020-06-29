@@ -14,6 +14,7 @@ interface Props {
 const TreeNode = React.memo((props: Props) => {
     return (
         <div
+            className={classes.node}
             onClick={(e) => {
                 e.stopPropagation();
                 console.log('klik');
