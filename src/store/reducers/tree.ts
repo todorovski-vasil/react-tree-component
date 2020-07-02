@@ -224,12 +224,15 @@ export const changeExpandedFlagIterative = (
                         // go up
                         while (nodeStack.length) {
                             let grandParent = nodeStack.pop() as NodeStack;
+                            // check if parent is the last sibling
                             if (
                                 grandParent.node.children.length <=
                                 parent.index + 1
                             ) {
+                                // last sibling, go up
                                 parent = grandParent;
                             } else {
+                                // not last sibling, add next sibling to stack
                                 nodeStack.push(grandParent);
                                 nodeStack.push({
                                     node:
@@ -272,28 +275,124 @@ function colapseNode(node: Node, id: string): Node {
     return changeExpandedFlag(node, id, false);
 }
 
-export function expandAllNodes(node: Node): Node {
+const editAllNodes = (node: Node, expanded: boolean): Node => {
+    interface NodeStack {
+        node: Node;
+        index: number;
+        childrenProcessed: boolean;
+    }
+    const nodeStack: Array<NodeStack> = [];
+    nodeStack.push({ node: { ...node }, index: 0, childrenProcessed: false });
+    let changedNode: Node = node;
+
+    while (nodeStack.length) {
+        let current: NodeStack | undefined;
+        current = nodeStack.pop() as NodeStack;
+
+        if (!current.childrenProcessed && current.node.children.length) {
+            // has children, than go deeper
+            nodeStack.push(current);
+            nodeStack.push({
+                node: current.node.children[0],
+                index: 0,
+                childrenProcessed: false,
+            });
+        } else {
+            // doesn't have children or the children are processed
+            if (nodeStack.length) {
+                let parent = nodeStack.pop() as NodeStack;
+
+                const isLastChild =
+                    parent.node.children.length === current.index + 1;
+
+                if (current.childrenProcessed) {
+                    let currentNode: Node;
+                    if (current.node.children.length) {
+                        currentNode = {
+                            ...current.node,
+                            expanded: expanded,
+                        };
+                    } else {
+                        currentNode = current.node;
+                    }
+
+                    changedNode = {
+                        ...parent.node,
+                        // @ts-ignore
+                        children: parent.node.children.map((child, index) => {
+                            // @ts-ignore
+                            if (index === current.index) {
+                                return currentNode;
+                            } else {
+                                return child;
+                            }
+                        }),
+                    };
+                } else {
+                    changedNode = parent.node;
+                }
+
+                nodeStack.push({
+                    node: changedNode,
+                    index: parent.index,
+                    childrenProcessed: isLastChild,
+                });
+
+                if (!isLastChild) {
+                    // add sibling to the stack
+                    nodeStack.push({
+                        node: parent.node.children[current.index + 1],
+                        index: current.index + 1,
+                        childrenProcessed: false,
+                    });
+                }
+            } else {
+                // head node
+                changedNode = { ...current.node, expanded: expanded };
+                return changedNode;
+            }
+        }
+    }
+
+    return changedNode;
+};
+
+export function expandAllNodesRecursive(node: Node): Node {
     if (node.children.length) {
         return {
             ...node,
             expanded: true,
-            children: node.children.map((node) => expandAllNodes(node)),
+            children: node.children.map((node) =>
+                expandAllNodesRecursive(node)
+            ),
         };
     } else {
         return node;
     }
 }
 
-function colapseAllNodes(node: Node): Node {
+export function expandAllNodes(node: Node): Node {
+    return recursive ? expandAllNodesRecursive(node) : editAllNodes(node, true);
+}
+
+function colapseAllNodesRecursive(node: Node): Node {
     if (node.children.length) {
         return {
             ...node,
             expanded: false,
-            children: node.children.map((node) => colapseAllNodes(node)),
+            children: node.children.map((node) =>
+                colapseAllNodesRecursive(node)
+            ),
         };
     } else {
         return node;
     }
+}
+
+export function colapseAllNodes(node: Node): Node {
+    return recursive
+        ? colapseAllNodesRecursive(node)
+        : editAllNodes(node, false);
 }
 
 export function expandTree(tree: Array<Node>): Array<Node> {

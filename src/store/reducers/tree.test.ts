@@ -19,9 +19,12 @@ test('inputNode to Node conversion works', () => {
 });
 
 test('expand all nodes', () => {
+    // console.log(mockState);
     const expandedNodes = expandAllNodes(mockState[0]);
+
+    // console.log(mockState);
     expect(checkIfNodeIsExpanded(expandedNodes)).toBe(true);
-});
+}, 1000);
 
 test('check if node is expanded', () => {
     const testNodes = {
