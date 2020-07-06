@@ -27,7 +27,7 @@ export interface State {
     tree: Array<Node>;
 }
 
-const getUniqueId = () => (Math.random() * Math.pow(10, 15)).toFixed(0);
+export const getUniqueId = () => (Math.random() * Math.pow(10, 15)).toFixed(0);
 
 export const inputNodeToNodeRecursive = (inputNode: InputNode): Node => ({
     id: getUniqueId(),
