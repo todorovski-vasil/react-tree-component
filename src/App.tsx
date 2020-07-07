@@ -1,6 +1,7 @@
 import React, { useReducer, useEffect, ReactElement, useCallback } from 'react';
 
-import { reducer as treeReducer, Node } from './store/reducers/tree';
+import { reducer as treeReducer } from './store/reducers/tree';
+import { Node } from './types/tree';
 import { actions } from './store/actions/tree';
 import TreeNode from './components/TreeNode/TreeNode';
 // import mockData from './model/tree.json';
@@ -150,7 +151,7 @@ const treeToComponents = (
           );
 
 function App() {
-    const [state, dispatch] = useReducer(treeReducer, {
+    const [state, dispatch] = useReducer(treeReducer(recursive), {
         allExpanded: false,
         tree: [{ label: 'drvo', expanded: false, id: '', children: [] }],
     });

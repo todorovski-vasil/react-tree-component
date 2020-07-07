@@ -1,4 +1,5 @@
-import { Node, getUniqueId } from '../store/reducers/tree';
+import { Node } from '../types/tree';
+import { getUniqueId } from '../util/util';
 
 export const generateDeepTree = (
     depth: number = 10,

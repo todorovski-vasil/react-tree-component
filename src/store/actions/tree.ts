@@ -1,5 +1,5 @@
 import * as actionTypes from './actionTypes';
-import { InputNode } from '../reducers/tree';
+import { InputNode } from '../../types/tree';
 
 interface NodeAction {
     type: string;
